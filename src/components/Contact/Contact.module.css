@@ -1,0 +1,35 @@
+/* Contact.module.css */
+
+.contactContainer {
+  border: 1px solid #39b44d;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.contactIcon {
+  margin-right: 5px;
+}
+
+.contactItem p {
+  margin: 5px 0;
+}
+
+button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: rgb(14, 35, 228);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #c82333;
+}
