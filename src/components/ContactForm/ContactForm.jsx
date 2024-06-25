@@ -5,8 +5,9 @@ import { nanoid } from "nanoid";
 import { useId } from "react";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
-import { addContact } from "../../redux/contactsOps";
+
 import css from "./ContactForm.module.css";
+import { addContact } from "../../redux/contacts/contactsOps";
 
 const initialValues = {
   id: nanoid(),
