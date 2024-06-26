@@ -1,4 +1,9 @@
 const RegistrationPage = () => {
-  return <>1212</>;
+  return (
+    <div>
+      <h1>Регистрация</h1>
+    </div>
+  );
 };
+
 export default RegistrationPage;

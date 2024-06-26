@@ -17,6 +17,7 @@ import ContactsPage from "./pages/ContactsPage/ContactsPage";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegistrationPage from "./pages/RegistrationPage/RegistrationPage";
+import Navigation from "./components/Navigation/Navigation";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ const App = () => {
   return (
     <>
       <Layout>
+        <Navigation />
         <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
