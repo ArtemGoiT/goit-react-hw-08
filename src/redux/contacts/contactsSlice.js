@@ -1,8 +1,9 @@
 import { createSelector, createSlice, isAnyOf } from "@reduxjs/toolkit";
 
 import toast from "react-hot-toast";
-import { addContact, deleteContact, fetchContacts } from "./contactsOps";
+
 import { selectNameFilter } from "./filtersSlice";
+import { addContact, deleteContact, fetchContacts } from "./operations";
 
 const initialState = {
   contacts: {

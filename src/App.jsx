@@ -6,7 +6,7 @@ import "./App.css";
 // import ContactList from "./components/ContactList/ContactList";
 // import SearchBox from "./components/SearchBox/SearchBox";
 import { Suspense, useEffect } from "react";
-import { fetchContacts } from "./redux/contacts/contactsOps";
+import { fetchContacts } from "./redux/contacts/operations";
 import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage/HomePage";
 import Loader from "./components/Loader/Loader";
