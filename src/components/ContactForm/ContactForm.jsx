@@ -1,89 +1,122 @@
-// ContactForm.jsx
-
-import { Field, Formik, Form, ErrorMessage } from "formik";
-import { nanoid } from "nanoid";
-import { useId } from "react";
+import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
-import * as yup from "yup";
+import * as Yup from "yup";
+import { addContact, updateContact } from "../../redux/contacts/operations";
+import { showError, showSuccess } from "../helpme/toast";
+import { useEffect } from "react";
+import { Box, Button, FormHelperText, TextField } from "@mui/material";
 
-import css from "./ContactForm.module.css";
-import { addContact } from "../../redux/contacts/contactsOps";
-
-const initialValues = {
-  id: nanoid(),
-  name: "",
-  number: "",
-};
-
-const validationSchema = yup.object().shape({
-  name: yup
-    .string()
-    .required("Name is required")
-    .min(3, "Name must be at least 3 characters")
-    .max(50, "Name cannot exceed 50 characters")
-    .trim(),
-  number: yup
-    .string()
-    .required("Number is required")
-    .matches(/^[\d-]+$/, "Number must contain only digits or hyphens")
-    .min(3, "Number must be at least 3 characters")
-    .max(12, "Number cannot exceed 12 characters"),
+const ContactSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(3, "Too Short!")
+    .max(50, "Too Long!")
+    .required("Required"),
+  number: Yup.string()
+    .matches(/^[0-9 -/+]+$/, "Invalid number. You can use '0-9', ' ', '-', '+'")
+    .min(3, "Too Short!")
+    .max(50, "Too Long!")
+    .required("Required"),
 });
 
-export const ContactForm = () => {
-  const nameFieldId = useId();
-  const numberFieldId = useId();
+const initialValues = { name: "", number: "" };
 
+const ContactForm = ({ editContact, handleEditContact, formRef }) => {
   const dispatch = useDispatch();
 
-  const handleSubmit = (values, actions) => {
-    dispatch(addContact(values));
-    actions.resetForm();
-  };
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: ContactSchema,
+    onSubmit: (values, action) => {
+      if (editContact) {
+        dispatch(updateContact({ id: editContact.id, ...values }))
+          .then(() => showSuccess("updated"))
+          .catch(() => showError());
+        handleEditContact(null);
+      } else {
+        dispatch(addContact({ ...values }))
+          .then(() => showSuccess("added"))
+          .catch(() => showError());
+      }
+      action.resetForm();
+    },
+  });
+
+  useEffect(() => {
+    if (!editContact) return;
+    formik.resetForm();
+    formik.setFieldValue("name", editContact.name);
+    formik.setFieldValue("number", editContact.number);
+  }, [editContact]);
 
   return (
-    <div className={css.subCard}>
-      <h2>Add a person</h2>
-      <div className={css.contactForm}>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleSubmit}
+    <Box
+      ref={formRef}
+      component="form"
+      onSubmit={formik.handleSubmit}
+      sx={{
+        width: "100%",
+        maxWidth: "375px",
+      }}
+    >
+      <TextField
+        fullWidth
+        id="name"
+        name="name"
+        label="Name"
+        value={formik.values.name}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.name && Boolean(formik.errors.name)}
+      />
+      <Box sx={{ minHeight: "25px", mt: "3px" }}>
+        {formik.touched.name && formik.errors.name && (
+          <FormHelperText error>{formik.errors.name} </FormHelperText>
+        )}
+      </Box>
+      <TextField
+        fullWidth
+        id="number"
+        name="number"
+        label="Number"
+        type="text"
+        value={formik.values.number}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.number && Boolean(formik.errors.number)}
+      />
+      <Box sx={{ minHeight: "25px", mt: "3px" }}>
+        {formik.touched.number && formik.errors.number && (
+          <FormHelperText error>{formik.errors.number} </FormHelperText>
+        )}
+      </Box>
+      <Box sx={{ display: "flex", gap: 1 }}>
+        {editContact && (
+          <Button
+            color="primary"
+            variant="contained"
+            sx={{ mt: 1, mb: 1 }}
+            fullWidth
+            type="button"
+            onClick={() => {
+              handleEditContact(null);
+              formik.resetForm();
+            }}
+          >
+            Cancel
+          </Button>
+        )}
+
+        <Button
+          color="primary"
+          variant="contained"
+          sx={{ mt: 1, mb: 1 }}
+          fullWidth
+          type="submit"
         >
-          <Form>
-            <div>
-              <label htmlFor={nameFieldId}>Name</label>
-              <Field
-                type="text"
-                id={nameFieldId}
-                name="name"
-                placeholder="Enter name..."
-              />
-              <ErrorMessage
-                className={css.error}
-                name="name"
-                component="span"
-              />
-            </div>
-            <div>
-              <label htmlFor={numberFieldId}>Number</label>
-              <Field
-                type="text"
-                id={numberFieldId}
-                name="number"
-                placeholder="Enter phone number..."
-              />
-              <ErrorMessage
-                className={css.error}
-                name="number"
-                component="span"
-              />
-            </div>
-            <button type="submit">Add contact</button>
-          </Form>
-        </Formik>
-      </div>
-    </div>
+          {editContact ? "Edit" : "Add contact"}
+        </Button>
+      </Box>
+    </Box>
   );
 };
 

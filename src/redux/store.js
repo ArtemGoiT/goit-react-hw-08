@@ -4,7 +4,6 @@ import { filterReducer } from "./filters/slice.js";
 import { authReducer } from "./auth/slice.js";
 import {
   persistStore,
-  persistReducer,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -12,21 +11,13 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-
-const authPersistConfig = {
-  key: "auth",
-  storage,
-  whitelist: ["token"],
-};
 
 export const store = configureStore({
   reducer: {
-    auth: persistReducer(authPersistConfig, authReducer),
+    auth: authReducer,
     contacts: contactsReducer,
     filters: filterReducer,
   },
-
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

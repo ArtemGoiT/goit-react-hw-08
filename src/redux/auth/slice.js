@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { registerUser, isLogin, information, exit } from "./operations";
+import { logIn, logOut, refreshUser, register } from "./operations";
 
 const initialState = {
   user: {
@@ -13,34 +13,36 @@ const initialState = {
   isRefreshing: false,
 };
 
-const setAvtor = (state, { payload }) => {
+const setAuth = (state, { payload }) => {
   state.user = payload.user;
   state.token = payload.token;
   state.isLoggedIn = true;
 };
 
-const initSlice = createSlice({
+const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {}, // Если у вас нет дополнительных редукторов, оставьте пустым
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.fulfilled, setAvtor)
-      .addCase(isLogin.fulfilled, setAvtor)
-      .addCase(information.pending, (state) => {
-        state.isRefreshing = true; // Было: state.information = true; Исправление: исправлено на state.isRefreshing
+      .addCase(register.fulfilled, setAuth)
+
+      .addCase(logIn.fulfilled, setAuth)
+
+      .addCase(refreshUser.pending, (state) => {
+        state.isRefreshing = true;
       })
-      .addCase(information.fulfilled, (state, action) => {
-        setAvtor(state, action);
+      .addCase(refreshUser.fulfilled, (state, action) => {
+        setAuth(state, action);
         state.isRefreshing = false;
       })
-      .addCase(information.rejected, (state) => {
+      .addCase(refreshUser.rejected, (state) => {
         state.isRefreshing = false;
       })
-      .addCase(exit.fulfilled, (state) => {
+
+      .addCase(logOut.fulfilled, (state) => {
         state.user = { name: null, email: null };
         state.token = null;
-        state.isLoggedIn = false; // Было: state.isLoggedInc = false; Исправление: исправлено на state.isLoggedIn
+        state.isLoggedIn = false;
       });
   },
 });
@@ -48,7 +50,7 @@ const initSlice = createSlice({
 const persistConfig = {
   key: "auth",
   storage,
-  whitelist: ["token"], // Было: whiteList: ["token"]; Исправление: whitelist вместо whiteList
+  whiteList: ["token"],
 };
 
-export const authReducer = persistReducer(persistConfig, initSlice.reducer);
+export const authReducer = persistReducer(persistConfig, authSlice.reducer);

@@ -1,36 +1,32 @@
-// ContactList.jsx
-
+import { Grid } from "react-loader-spinner";
 import { useSelector } from "react-redux";
-import css from "./ContactList.module.css";
 import Contact from "../Contact/Contact";
+import Notification from "../Notification/Notification";
+import { selectFilteredContacts } from "../../redux/contacts/selectors";
 
-import Loader from "../Loader/Loader";
-import {
-  selectFilteredContacts,
-  selectIsLoading,
-} from "../../redux/contacts/contactsSlice";
+const ContactList = ({ handleEditContact }) => {
+  const contacts = useSelector(selectFilteredContacts);
 
-export const ContactList = () => {
-  const isLoading = useSelector(selectIsLoading);
   const filteredContacts = useSelector(selectFilteredContacts);
 
+  if (!contacts.length) return <Notification title={"No contacts yet"} />;
+
+  if (!filteredContacts.length)
+    return <Notification title={"Contacts are not found"} />;
+
   return (
-    <div className={css.subCard}>
-      <div className={css.listParams}>
-        <h2>Check contacts list</h2>
-        <p>Length: {filteredContacts.length}</p>
-      </div>
-
-      {isLoading && <Loader />}
-
-      <ul className={css.contactsList}>
-        {filteredContacts.map((contact) => (
-          <li key={contact.id}>
-            <Contact contact={contact} />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Grid container spacing={2} sx={{ mt: 2 }}>
+      {filteredContacts.map(({ id, name, number }) => (
+        <Grid item key={id} xs={12} alignItems="flex-start">
+          <Contact
+            id={id}
+            name={name}
+            number={number}
+            handleEditContact={handleEditContact}
+          />
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 

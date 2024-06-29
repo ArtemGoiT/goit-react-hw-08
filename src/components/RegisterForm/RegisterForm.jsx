@@ -1,11 +1,11 @@
 import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
-import { registerUser } from "../../redux/auth/operations";
+import { register } from "../../redux/auth/operations";
 import { Box, Button, FormHelperText, TextField } from "@mui/material";
 
-const validationRegistr = yup.object({
-  name: yup.string("Enter your email").required("Email is required"),
+const validationSchema = yup.object({
+  name: yup.string("Enter your name").required("Name is required"),
   email: yup
     .string("Enter your email")
     .email("Enter a valid email")
@@ -25,13 +25,17 @@ const RegisterForm = () => {
       email: "",
       password: "",
     },
-    validationRegistr: validationRegistr,
-    onSubmit: (values, action) => {
-      dispatch(registerUser(values)).unwrap();
-      // .catch(() => showError());
-      action.resetForm();
+    validationSchema: validationSchema,
+    onSubmit: async (values, actions) => {
+      try {
+        await dispatch(register(values)).unwrap();
+        actions.resetForm();
+      } catch (error) {
+        console.error("Failed to register: ", error);
+      }
     },
   });
+
   return (
     <Box
       component="form"
@@ -50,7 +54,7 @@ const RegisterForm = () => {
       />
       <Box sx={{ minHeight: "25px", mt: "3px" }}>
         {formik.touched.name && formik.errors.name && (
-          <FormHelperText error>{formik.errors.name} </FormHelperText>
+          <FormHelperText error>{formik.errors.name}</FormHelperText>
         )}
       </Box>
       <TextField
@@ -66,7 +70,7 @@ const RegisterForm = () => {
       />
       <Box sx={{ minHeight: "25px", mt: "3px" }}>
         {formik.touched.email && formik.errors.email && (
-          <FormHelperText error>{formik.errors.email} </FormHelperText>
+          <FormHelperText error>{formik.errors.email}</FormHelperText>
         )}
       </Box>
       <TextField
@@ -83,7 +87,7 @@ const RegisterForm = () => {
       />
       <Box sx={{ minHeight: "25px", mt: "3px" }}>
         {formik.touched.password && formik.errors.password && (
-          <FormHelperText error>{formik.errors.password} </FormHelperText>
+          <FormHelperText error>{formik.errors.password}</FormHelperText>
         )}
       </Box>
       <Button
@@ -92,6 +96,7 @@ const RegisterForm = () => {
         sx={{ mt: 1, mb: 1 }}
         fullWidth
         type="submit"
+        disabled={formik.isSubmitting}
       >
         Submit
       </Button>

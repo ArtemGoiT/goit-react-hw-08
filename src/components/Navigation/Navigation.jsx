@@ -1,23 +1,34 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { selectIsLoggedIn } from "../../redux/auth/selectors";
+import { useSelector } from "react-redux";
+import { Box, MenuItem, Typography } from "@mui/material";
 
-const Navigation = () => {
+export const Navigation = ({ styles = {} }) => {
+  let location = useLocation();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
+  const homeColor = location.pathname === "/" ? "primary" : "text.primary";
+  const contactsColor =
+    location.pathname === "/contacts" ? "primary" : "text.primary";
+
   return (
-    <nav>
-      <ul>
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/register">Register</Link>
-        </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
-        <li>
-          <Link to="/contacts">Contacts</Link>
-        </li>
-      </ul>
-    </nav>
+    <Box component="nav" sx={styles}>
+      <Link to="/">
+        <MenuItem sx={{ py: "6px", px: "12px" }}>
+          <Typography variant="body2" color={homeColor}>
+            HOME
+          </Typography>
+        </MenuItem>
+      </Link>
+      {isLoggedIn && (
+        <Link to="/contacts">
+          <MenuItem sx={{ py: "6px", px: "12px" }}>
+            <Typography variant="body2" color={contactsColor}>
+              CONTACTS
+            </Typography>
+          </MenuItem>
+        </Link>
+      )}
+    </Box>
   );
 };
-export default Navigation;
