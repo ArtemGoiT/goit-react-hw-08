@@ -1,81 +1,68 @@
-import { createSlice, isAnyOf } from "@reduxjs/toolkit";
-import toast from "react-hot-toast";
-
+import { createSlice } from "@reduxjs/toolkit";
 import {
-  addContact,
-  deleteContact,
   fetchContacts,
+  deleteContact,
+  addContact,
   updateContact,
-} from "./operations"; // Добавляем updateContact
-
-const initialState = {
-  contacts: {
-    items: [],
-    isLoading: false,
-    isError: false,
-  },
+} from "./operations.js";
+import { logOut } from "../auth/operations.js";
+const handlePending = (state) => {
+  state.loading = true;
 };
 
-export const contactsSlice = createSlice({
+const handleRejected = (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+};
+
+const contactsSlice = createSlice({
   name: "contacts",
-  initialState,
+  initialState: {
+    items: [],
+    loading: false,
+    error: null,
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchContacts.fulfilled, (state, { payload }) => {
-        state.contacts.items = payload;
+      .addCase(fetchContacts.pending, handlePending)
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items = action.payload;
       })
-      .addCase(addContact.fulfilled, (state, { payload }) => {
-        state.contacts.items.push(payload);
-      })
-      .addCase(deleteContact.fulfilled, (state, { payload }) => {
-        state.contacts.items = state.contacts.items.filter(
-          (item) => item.id !== payload.id
+      .addCase(fetchContacts.rejected, handleRejected)
+      .addCase(deleteContact.pending, handlePending)
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items = state.items.filter(
+          (contact) => contact.id !== action.payload.id
         );
       })
-      .addCase(updateContact.fulfilled, (state, { payload }) => {
-        const indexToUpdate = state.contacts.items.findIndex(
-          ({ id }) => id === payload.id
-        );
-        if (indexToUpdate !== -1) {
-          state.contacts.items[indexToUpdate] = payload;
-        }
+      .addCase(deleteContact.rejected, handleRejected)
+      .addCase(addContact.pending, handlePending)
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items.push(action.payload);
       })
-      .addMatcher(
-        isAnyOf(
-          fetchContacts.pending,
-          addContact.pending,
-          deleteContact.pending,
-          updateContact.pending // Добавляем updateContact.pending
-        ),
-        (state) => {
-          state.contacts.isLoading = true;
-          state.contacts.isError = false;
-        }
-      )
-      .addMatcher(
-        isAnyOf(
-          fetchContacts.fulfilled,
-          addContact.fulfilled,
-          deleteContact.fulfilled,
-          updateContact.fulfilled // Добавляем updateContact.fulfilled
-        ),
-        (state) => {
-          state.contacts.isLoading = false;
-        }
-      )
-      .addMatcher(
-        isAnyOf(
-          fetchContacts.rejected,
-          addContact.rejected,
-          deleteContact.rejected,
-          updateContact.rejected // Добавляем updateContact.rejected
-        ),
-        (state, action) => {
-          state.contacts.isLoading = false;
-          state.contacts.isError = true;
-          toast.error(action.payload || "This didn't work.");
-        }
-      );
+      .addCase(addContact.rejected, handleRejected)
+      .addCase(updateContact.pending, handlePending)
+      .addCase(updateContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const index = state.items.findIndex(
+          ({ id }) => id === action.payload.id
+        );
+        state.items[index] = action.payload;
+      })
+      .addCase(updateContact.rejected, handleRejected)
+      .addCase(logOut.fulfilled, (state) => {
+        state.error = null;
+        state.loading = false;
+        state.items = [];
+      });
   },
 });
+
 export const contactsReducer = contactsSlice.reducer;

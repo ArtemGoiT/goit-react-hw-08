@@ -1,12 +1,14 @@
-import { Grid } from "react-loader-spinner";
 import { useSelector } from "react-redux";
+import {
+  selectContacts,
+  selectFilteredContacts,
+} from "../../redux/contacts/selectors";
 import Contact from "../Contact/Contact";
 import Notification from "../Notification/Notification";
-import { selectFilteredContacts } from "../../redux/contacts/selectors";
+import { Grid } from "@mui/material";
 
 const ContactList = ({ handleEditContact }) => {
-  const contacts = useSelector(selectFilteredContacts);
-
+  const contacts = useSelector(selectContacts);
   const filteredContacts = useSelector(selectFilteredContacts);
 
   if (!contacts.length) return <Notification title={"No contacts yet"} />;

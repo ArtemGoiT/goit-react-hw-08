@@ -50,8 +50,11 @@ export const refreshUser = createAsyncThunk(
     const state = thunkAPI.getState();
     const persistedToken = state.auth.token;
 
-    if (!persistedToken)
-      return thunkAPI.rejectWithValue("Unable to fetch user");
+    if (!persistedToken) {
+      return thunkAPI.rejectWithValue(
+        "Невозможно получить данные пользователя: токен не найден"
+      );
+    }
 
     setAuthHeader(persistedToken);
     try {
@@ -59,7 +62,10 @@ export const refreshUser = createAsyncThunk(
 
       return { token: persistedToken, user: data };
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      // Возвращаем статус ошибки или пользовательское сообщение об ошибке
+      return thunkAPI.rejectWithValue(
+        error.response?.status || "Ошибка при получении данных пользователя"
+      );
     }
   }
 );

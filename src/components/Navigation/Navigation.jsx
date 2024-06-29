@@ -3,7 +3,7 @@ import { selectIsLoggedIn } from "../../redux/auth/selectors";
 import { useSelector } from "react-redux";
 import { Box, MenuItem, Typography } from "@mui/material";
 
-export const Navigation = ({ styles = {} }) => {
+const Navigation = ({ styles = {} }) => {
   let location = useLocation();
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
@@ -32,3 +32,5 @@ export const Navigation = ({ styles = {} }) => {
     </Box>
   );
 };
+
+export default Navigation;

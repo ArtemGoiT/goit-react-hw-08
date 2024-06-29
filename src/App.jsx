@@ -1,70 +1,74 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
-// import { Toaster } from "react-hot-toast";
 
-// import ContactForm from "./components/ContactForm/ContactForm";
-// import ContactList from "./components/ContactList/ContactList";
-// import SearchBox from "./components/SearchBox/SearchBox";
-import { Suspense, useEffect } from "react";
-import { fetchContacts } from "./redux/contacts/operations";
+import { Suspense, lazy, useEffect } from "react";
+
 import { Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage/HomePage";
+
 import Loader from "./components/Loader/Loader";
 import { Layout } from "./components/Layout/Layout";
 import RestrictedRoute from "./Router/RestrictedRoute";
 import PrivateRoute from "./Router/PrivateRouter";
-import ContactsPage from "./pages/ContactsPage/ContactsPage";
-import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
-import LoginPage from "./pages/LoginPage/LoginPage";
+import { selectIsRefreshing } from "./redux/auth/selectors.js";
 
-import Navigation from "./components/Navigation/Navigation";
-import RegisterForm from "./components/RegisterForm/RegisterForm";
+import { refreshUser } from "./redux/auth/operations.js";
 
-const App = () => {
+const HomePage = lazy(() => import("../src/pages/HomePage/HomePage.jsx"));
+const RegisterPage = lazy(
+  () => import("../src/pages/RegistrationPage/RegistrationPage.jsx")
+);
+const LoginPage = lazy(() => import("../src/pages/LoginPage/LoginPage.jsx"));
+const ContactsPage = lazy(
+  () => import("../src/pages/ContactsPage/ContactsPage.jsx")
+);
+const NotFoundPage = lazy(
+  () => import("../src/pages/NotFoundPage/NotFoundPage.jsx")
+);
+
+function App() {
   const dispatch = useDispatch();
+  const { isRefreshing } = useSelector(selectIsRefreshing);
+
   useEffect(() => {
-    dispatch(fetchContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
+
+  if (isRefreshing) return <Loader />;
+
   return (
-    <>
-      <Layout>
-        <Navigation />
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/register"
-              element={
-                <RestrictedRoute
-                  redirectTo="/contact"
-                  component={<RegisterForm />}
-                />
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <RestrictedRoute
-                  redirectTo="/contacts"
-                  component={<LoginPage />}
-                />
-              }
-            />
-            <Route
-              path="/contact"
-              element={
-                <PrivateRoute
-                  redirectTo="/login"
-                  component={<ContactsPage />}
-                />
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-      </Layout>
-    </>
+    <Layout>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/register"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<RegisterPage />}
+              />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <RestrictedRoute
+                redirectTo="/contacts"
+                component={<LoginPage />}
+              />
+            }
+          />
+          <Route
+            path="/contacts"
+            element={
+              <PrivateRoute redirectTo="/login" component={<ContactsPage />} />
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </Layout>
   );
-};
+}
 
 export default App;
