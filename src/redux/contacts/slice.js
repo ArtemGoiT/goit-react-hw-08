@@ -1,9 +1,12 @@
-import { createSelector, createSlice, isAnyOf } from "@reduxjs/toolkit";
-
+import { createSlice, isAnyOf } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 
-import { selectNameFilter } from "./filtersSlice";
-import { addContact, deleteContact, fetchContacts } from "./operations";
+import {
+  addContact,
+  deleteContact,
+  fetchContacts,
+  updateContact,
+} from "./operations"; // Добавляем updateContact
 
 const initialState = {
   contacts: {
@@ -16,11 +19,6 @@ const initialState = {
 export const contactsSlice = createSlice({
   name: "contacts",
   initialState,
-  selectors: {
-    selectContacts: (state) => state.contacts.items,
-    selectIsLoading: (state) => state.contacts.isLoading,
-    selectIsError: (state) => state.contacts.isError,
-  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchContacts.fulfilled, (state, { payload }) => {
@@ -34,11 +32,20 @@ export const contactsSlice = createSlice({
           (item) => item.id !== payload.id
         );
       })
+      .addCase(updateContact.fulfilled, (state, { payload }) => {
+        const indexToUpdate = state.contacts.items.findIndex(
+          ({ id }) => id === payload.id
+        );
+        if (indexToUpdate !== -1) {
+          state.contacts.items[indexToUpdate] = payload;
+        }
+      })
       .addMatcher(
         isAnyOf(
           fetchContacts.pending,
           addContact.pending,
-          deleteContact.pending
+          deleteContact.pending,
+          updateContact.pending // Добавляем updateContact.pending
         ),
         (state) => {
           state.contacts.isLoading = true;
@@ -49,7 +56,8 @@ export const contactsSlice = createSlice({
         isAnyOf(
           fetchContacts.fulfilled,
           addContact.fulfilled,
-          deleteContact.fulfilled
+          deleteContact.fulfilled,
+          updateContact.fulfilled // Добавляем updateContact.fulfilled
         ),
         (state) => {
           state.contacts.isLoading = false;
@@ -59,24 +67,15 @@ export const contactsSlice = createSlice({
         isAnyOf(
           fetchContacts.rejected,
           addContact.rejected,
-          deleteContact.rejected
+          deleteContact.rejected,
+          updateContact.rejected // Добавляем updateContact.rejected
         ),
-        (state) => {
+        (state, action) => {
           state.contacts.isLoading = false;
           state.contacts.isError = true;
-          toast.error("This didn't work.");
+          toast.error(action.payload || "This didn't work.");
         }
       );
   },
 });
-
-export const { selectContacts, selectIsLoading, selectIsError } =
-  contactsSlice.selectors;
-
-export const selectFilteredContacts = createSelector(
-  [selectContacts, selectNameFilter],
-  (items, { name }) =>
-    items.filter((item) => item.name.toLowerCase().includes(name.toLowerCase()))
-);
-
 export const contactsReducer = contactsSlice.reducer;
