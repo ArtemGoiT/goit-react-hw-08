@@ -18,7 +18,7 @@ import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 
 import Navigation from "./components/Navigation/Navigation";
-import RegistrationPage from "./pages/RegistrationPage/RegistrationPage";
+import RegisterForm from "./components/RegisterForm/RegisterForm";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const App = () => {
               element={
                 <RestrictedRoute
                   redirectTo="/contact"
-                  component={<RegistrationPage />}
+                  component={<RegisterForm />}
                 />
               }
             />
