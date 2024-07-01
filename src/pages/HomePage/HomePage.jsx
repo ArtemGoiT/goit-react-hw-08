@@ -1,7 +1,23 @@
-import { Box, Container, Typography, Button, IconButton } from "@mui/material";
+import { Box, Container, Typography, IconButton, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import PhoneIcon from "@mui/icons-material/Phone";
 import { useState, useEffect } from "react";
+import { styled } from "@mui/system";
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  transition: "all 0.3s ease-in-out",
+  "&:hover": {
+    backgroundColor: theme.palette.primary.dark,
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+    transform: "scale(1.05)",
+  },
+  "&:active": {
+    boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+    transform: "scale(1)",
+  },
+}));
 
 const HomePage = () => {
   const text = "Welcome to our Contact Management Website!";
@@ -83,7 +99,7 @@ const HomePage = () => {
               with ease. Our intuitive interface makes it simple to stay on top
               of your contact list.
             </Typography>
-            <Button
+            <StyledButton
               component={Link}
               to="/contacts"
               size="large"
@@ -91,7 +107,7 @@ const HomePage = () => {
               sx={{ mt: 2 }}
             >
               Get Started
-            </Button>
+            </StyledButton>
           </Box>
         </Box>
       </Container>
